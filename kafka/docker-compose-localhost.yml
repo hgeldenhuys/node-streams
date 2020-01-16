@@ -13,6 +13,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - "/private/var/kafka/zk-data:/var/lib/zookeeper/data"
+      - "/private/var/kafka/zk-txn-logs:/var/lib/zookeeper/log"
 
   broker:
     image: confluentinc/cp-enterprise-kafka:5.3.1
@@ -31,6 +34,8 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     expose:
       - "9092"
+    volumes:
+      - "/private/var/kafka/kafka-data:/var/lib/kafka/data"
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
@@ -76,15 +81,6 @@ services:
     volumes:
       - ./postgres/postgres-source.json:/connect/postgres-source.json
 
-#  ksql-server:
-#    image: confluentinc/cp-ksql-server:5.4.0
-#    environment:
-#      KSQL_BOOTSTRAP_SERVERS: "broker:9092"
-#      KSQL_KSQL_SERVICE_ID: "KSQL"
-#      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-#      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-#      KSQL_LISTENERS
-
   ksqldb-server:
     image: confluentinc/ksqldb-server:0.6.0
     hostname: ksqldb-server
@@ -103,8 +99,8 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
 #      KSQL_KSQL_CONNECT_WORKER_CONFIG: /etc/ksqldb/config/connect.properties
-    volumes:
-    - "${PWD}/connect.properties:/etc/ksqldb/config/connect.properties"
+#    volumes:
+#    - "${PWD}/connect.properties:/etc/ksqldb/config/connect.properties"
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:5.3.1

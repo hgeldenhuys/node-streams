@@ -16,6 +16,16 @@ export class WorkqueueApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
+    // Customize loopback app
+    this.api({
+      openapi: '3.0.0',
+      info: {
+        title: 'MxBuild API',
+        version: '1.0.0',
+      },
+      paths: {},
+    });
+
     // Set up the custom sequence
     this.sequence(MySequence);
 

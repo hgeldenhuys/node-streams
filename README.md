@@ -11,6 +11,16 @@ cd confluent
 docker-compose -f docker-compose-localhost.yml up
 ```
 
+## Setup volumes for persisting broker/zookeeper data
+
+```shell script
+sudo mkdir -p /var/kafka
+sudo mkdir -p /var/zk-data
+sudo mkdir -p /var/zk-txn-logs
+sudo mkdir -p /var/kafka-data
+
+sudo chown -R 12345 /var/kafka
+```
 #### 1.2. Custom host
 
 Make a copy of the docker-compose-localhost.yml and name it docker-compose-`your-host`.yml

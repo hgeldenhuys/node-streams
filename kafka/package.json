@@ -11,18 +11,14 @@
     "node": ">=8.9"
   },
   "scripts": {
-    "postgres": "docker run -p 5432:5432 --name postgres -e POSTGRES_USER=$USER -e POSTGRES_DB=$USER -d postgres",
-    "localhost-up": "docker-compose -f docker-compose-localhost.yml up -d",
-    "localhost-down": "docker-compose -f docker-compose-localhost.yml down",
-    "perelandra-up": "docker-compose -f docker-compose-perelandra.yml -d up",
-    "perelandra-down": "docker-compose -f docker-compose-perelandra.yml down",
-    "cli": "docker exec -it ksqldb-cli ksql http://ksqldb-server:8088",
-    "cli-ksqldb-server": "docker exec -it ksqldb-server bash",
-    "cli-control-center": "docker exec -it control-center bash",
-    "cli2": "docker exec -it postgres bash",
-    "psql": "docker exec -it postgres psql -U postgres",
-    "shell": "docker exec -it ksqldb-cli bash",
-    "shell-ksqldb": "docker exec -it ksqldb-server bash"
+    "compose-up": "docker-compose -f docker-compose-localhost.yml up -d",
+    "compose-down": "docker-compose -f docker-compose-localhost.yml down",
+    "ksqldb-client": "docker exec -it ksqldb-cli ksql http://ksqldb-server:8088",
+    "cli:ksqldb-server": "docker exec -it ksqldb-server bash",
+    "cli:ksqldb-client": "docker exec -it ksqldb-cli bash",
+    "cli:control-center": "docker exec -it control-center bash",
+    "cli:postgres": "docker exec -it postgres psql -U postgres",
+    "docker:flush-containers": "docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)"
   },
   "repository": {
     "type": "git"
