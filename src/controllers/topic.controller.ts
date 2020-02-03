@@ -1,11 +1,16 @@
-import {Request, RestBindings, get, param, put, Response} from '@loopback/rest';
+import {Request, RestBindings, get, param, put, Response, post, requestBody} from '@loopback/rest';
 import {inject} from '@loopback/context';
 import {CreateTopicResponse} from 'kafka-node';
+import fetch from 'node-fetch';
+
+fetch('https://api.github.com/users/github')
+  .then(res => res.json())
+  .then(json => console.log(json))
+  .catch(error => console.log(error));
 
 const
   kafka = require('kafka-node'),
   wildcard = require('wildcard');
-  // Producer = kafka.Producer;
 
 /**
  * OpenAPI response for ping()
@@ -55,7 +60,33 @@ export class TopicController {
       private readonly response: Response,
   ) {}
 
-  @put('/topic', {
+  @post('/produce/json/{topic_name}')
+  sendAvroMessages(
+    @param.path.string('topic_name', {required: true}) topicName: string,
+    @requestBody() body: {records: object[]},
+  ) {
+    console.log(`curl -X POST -H "Content-Type: application/vnd.kafka.json.v2+json" -H "Accept: application/vnd.kafka.v2+json" --data '${JSON.stringify(body)}'`, `http://rest-proxy:8082/topics/${topicName}`);
+    return new Promise<{}>((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      fetch(`http://rest-proxy:8082/topics/${topicName}`, {
+        headers: {
+          "Content-Type": "application/vnd.kafka.json.v2+json",
+          "Accept": "application/vnd.kafka.v2+json"
+        },
+        method: "POST",
+        body: JSON.stringify(body)
+      })
+        .then((value) => {
+          resolve(value.json());
+        })
+        .catch((error: Error) => {
+          reject(error);
+        });
+    });
+  }
+
+  @put('/topics', {
     responses: {
       '200': {}
     }
@@ -104,26 +135,6 @@ export class TopicController {
             message: `Topic ${topicName} created.`
           });
         }
-      //   producer.send([{
-      //     topic: 'topic1',
-      //     messages: ['message body'], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
-      //     key: 'theKey', // string or buffer, only needed when using keyed partitioner
-      //     partition: 0, // default 0
-      //     attributes: 2, // default: 0
-      //     timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
-      //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //     // @ts-ignore
-      //   }], (error2, result2) => {
-      //     if (result2) console.log(result2);
-      //     if (error2) console.error(error2);
-      //     const admin = new kafka.Admin(client);
-      //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //     // @ts-ignore
-      //     admin.listTopics((err, res) => {
-      //       console.log('topics', JSON.stringify(res, undefined, 2));
-      //       client.close();
-      //     });
-      //   })
       });
     });
   }
@@ -143,12 +154,6 @@ export class TopicController {
         kafkaHost: "broker:9092"
       }),
       admin = new kafka.Admin(client);
-      // producer = new Producer(client),
-      // topicsToCreate = [{
-      //   topic: 'topic1',
-      //   partitions: 1,
-      //   replicationFactor: 1
-      // }];
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
     return new Promise<{}>((resolve, reject) => {
@@ -160,7 +165,7 @@ export class TopicController {
         } else if (res) {
           if (!includeSystemTopics) Object.keys(res[1].metadata).forEach((key, indx) => {
             // console.log(key);
-            if (key.startsWith("_")) {
+            if (key.startsWith(`_`)) {
               delete res[1].metadata[key];
             }
           });
@@ -169,37 +174,5 @@ export class TopicController {
         client.close();
       });
     });
-
-    // // client.createTopics()
-    // client.createTopics(topicsToCreate, (error: object, result: CreateTopicResponse[]) => {
-    //   if (result) console.log(result);
-    //   if (error) console.error(error);
-    //   producer.send([{
-    //     topic: 'topic1',
-    //     messages: ['message body'], // multi messages should be a array, single message can be just a string or a KeyedMessage instance
-    //     key: 'theKey', // string or buffer, only needed when using keyed partitioner
-    //     partition: 0, // default 0
-    //     attributes: 2, // default: 0
-    //     timestamp: Date.now() // <-- defaults to Date.now() (only available with kafka v0.10+)
-    //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    //     // @ts-ignore
-    //   }], (error2, result2) => {
-    //     if (result2) console.log(result2);
-    //     if (error2) console.error(error2);
-    //     const admin = new kafka.Admin(client);
-    //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    //     // @ts-ignore
-    //     admin.listTopics((err, res) => {
-    //       console.log('topics', JSON.stringify(res, undefined, 2));
-    //       client.close();
-    //     });
-    //   })
-    // });
-    // return {
-    //   greeting: 'Hello from LoopBack',
-    //   date: new Date(),
-    //   url: this.req.url,
-    //   headers: Object.assign({}, this.req.headers),
-    // };
   }
 }

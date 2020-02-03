@@ -20,8 +20,8 @@ export class WorkqueueApplication extends BootMixin(
     this.api({
       openapi: '3.0.0',
       info: {
-        title: 'MxBuild API',
-        version: '1.0.0',
+        title: 'Node Streams',
+        version: '0.1.0',
       },
       paths: {},
     });

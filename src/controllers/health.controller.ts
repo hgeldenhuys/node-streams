@@ -1,7 +1,9 @@
 import {inject} from '@loopback/context';
 import {get, Request, Response, RestBindings} from '@loopback/rest';
 
-const ping = require("ping");
+const
+  ping = require("ping"),
+  hosts = ['zookeeper', 'broker', 'schema-registry', 'connect', 'ksqldb-server', 'control-center', 'rest-proxy'];
 
 export class HealthController {
   constructor(
@@ -12,11 +14,15 @@ export class HealthController {
   ) {
   }
 
-  @get('ping', {responses: {}})
+  @get('ping', {
+    responses: {},
+    summary: `Checks if all the required docker hosts are up`,
+    description: `Checks if all the required docker hosts are up and running. Hosts to check are: ${hosts.join("\n")}.
+    It uses the system Ping command`
+  })
   ping() {
     return new Promise((resolve, reject) => {
       const
-        hosts = ['zookeeper', 'broker', 'schema-registry', 'connect', 'ksqldb-server', 'control-center', 'rest-proxy'],
         // responseData: {host: string, alive: boolean}[] = [],
         promises: Promise<{host: string, resolvedHost: string, alive: string, time: number}>[] = hosts.map(function(host) {
           return ping.promise.probe(host);

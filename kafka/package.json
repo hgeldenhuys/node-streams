@@ -13,11 +13,12 @@
   "scripts": {
     "compose-up": "docker-compose -f docker-compose-localhost.yml up -d",
     "compose-down": "docker-compose -f docker-compose-localhost.yml down",
-    "ksqldb-client": "docker exec -it ksqldb-cli ksql http://ksqldb-server:8088",
+    "ksqldb-client": "docker exec -it ksqldb-cli ksql http://perelandra:8088",
     "cli:ksqldb-server": "docker exec -it ksqldb-server bash",
     "cli:ksqldb-client": "docker exec -it ksqldb-cli bash",
     "cli:control-center": "docker exec -it control-center bash",
     "cli:postgres": "docker exec -it postgres psql -U postgres",
+    "cli:workqueue": "docker exec -u 0 -it hgeldenhuys/workqueue bash",
     "docker:flush-containers": "docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)"
   },
   "repository": {

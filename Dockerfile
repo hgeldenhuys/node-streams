@@ -1,6 +1,8 @@
 # Check out https://hub.docker.com/_/node to select a new base image
 FROM node:10-slim
 
+RUN apt-get update && apt-get install -y ca-certificates iputils-ping
+
 # Set to a non-root built-in user `node`
 USER node
 
